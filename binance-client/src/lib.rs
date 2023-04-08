@@ -14,6 +14,11 @@ impl BinanceWebSocket {
         Ok(Self { ws_stream })
     }
 
+    pub async fn combined_stream(&mut self, combined: bool) -> Result<(), Box<dyn Error>> {
+        let property_msg = format!(r#"{{"method": "SET_PROPERTY", "params": ["combined", {}], "id": 1}}"#, combined);
+        self.ws_stream.send(Message::Text(property_msg)).await?;
+        Ok(())
+    }
     pub async fn subscribe(&mut self, stream: &str) -> Result<(), Box<dyn Error>> {
         let subscribe_msg = format!(r#"{{"method": "SUBSCRIBE", "params": ["{}"], "id": 1}}"#, stream);
         self.ws_stream.send(Message::Text(subscribe_msg)).await?;
