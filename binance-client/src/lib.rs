@@ -4,6 +4,14 @@ use serde_json::Value;
 use futures_util::{StreamExt, SinkExt};
 use std::error::Error;
 
+#[derive(Debug)]
+pub enum Command {
+    Subscribe(String),
+    Unsubscribe(String),
+    CombinedStream(bool),
+    Exit
+}
+
 pub struct BinanceWebSocket {
     ws_stream: WebSocketStream<MaybeTlsStream<TcpStream>>,
 }
