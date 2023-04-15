@@ -1,4 +1,4 @@
-use binance_client::BinanceWebSocket;
+use client::BinanceWebSocket;
 use cli;
 use std::error::Error;
 
