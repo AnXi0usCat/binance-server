@@ -8,4 +8,5 @@ edition = "2021"
 [dependencies]
 tokio = { version = "1.27.0", features = ["full"] }
 binance-client = { path =  "./binance-client" }
-clap = "3.0"
+clap = { version = "4.2.1", features = ["derive"] }
+rustyline = { version = "11.0.0"}
