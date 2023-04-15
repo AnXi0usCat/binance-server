@@ -6,7 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+binance-client = { path = "./binance-client" }
+cli = { path = "./cli"}
 tokio = { version = "1.27.0", features = ["full"] }
-binance-client = { path =  "./binance-client" }
 clap = { version = "4.2.1", features = ["derive"] }
 rustyline = { version = "11.0.0"}
