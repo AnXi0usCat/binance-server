@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use futures_util::{StreamExt, SinkExt};
 use std::error::Error;
-
+use tracing::info;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
@@ -64,12 +64,12 @@ impl BinanceWebSocket {
             match msg {
                 Message::Text(text) => {
                     let value: Value = serde_json::from_str(&text)?;
-                    println!("{}", value);
+                    info!("{}", value);
                 }
                 Message::Ping(ping) => {
-                    println!("Received Ping: {:?}", ping);
+                    info!("Received Ping: {:?}", ping);
                     self.ws_stream.send(Message::Pong(ping)).await?;
-                    println!("Sent Pong");
+                    info!("Sent Pong");
                 }
                 _ => (),
             }

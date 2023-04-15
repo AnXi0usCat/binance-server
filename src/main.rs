@@ -1,10 +1,15 @@
 use client::BinanceWebSocket;
 use cli;
 use std::error::Error;
-
+use tracing::Level;
+use tracing_subscriber;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
+    tracing_subscriber::fmt()
+        .with_max_level(Level::INFO)
+        .init();
+
     let cmd = cli::create_cli();
     let matches = cmd.get_matches();
 

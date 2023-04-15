@@ -10,4 +10,5 @@ client = { path = "./client" }
 cli = { path = "./cli"}
 tokio = { version = "1.27.0", features = ["full"] }
 clap = { version = "4.2.1", features = ["derive"] }
-rustyline = { version = "11.0.0"}
+tracing = "0.1.37"
+tracing-subscriber = "0.3.16"
