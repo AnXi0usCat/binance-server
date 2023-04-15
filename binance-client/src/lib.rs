@@ -1,15 +1,24 @@
 use tokio::net::TcpStream;
 use tokio_tungstenite::{connect_async, WebSocketStream, tungstenite::protocol::Message, MaybeTlsStream};
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use futures_util::{StreamExt, SinkExt};
 use std::error::Error;
 
-#[derive(Debug)]
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Command {
-    Subscribe(String),
-    Unsubscribe(String),
-    CombinedStream(bool),
-    Exit
+    Subscribe,
+    Unsubscribe,
+    SetProperty
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Subscribe {
+    method: Command,
+    params: Vec<String>,
+    id: u8,
 }
 
 pub struct BinanceWebSocket {
@@ -23,19 +32,28 @@ impl BinanceWebSocket {
     }
 
     pub async fn combined_stream(&mut self, combined: bool) -> Result<(), Box<dyn Error + Send + Sync>> {
-        let property_msg = format!(r#"{{"method": "SET_PROPERTY", "params": ["combined", {}], "id": 1}}"#, combined);
-        self.ws_stream.send(Message::Text(property_msg)).await?;
+        self.ws_stream.send(Message::Text(BinanceWebSocket::create_payload(
+                    Command::SetProperty,
+                    vec![String::from("combined"), combined.to_string()])
+                ?)
+            ).await?;
         Ok(())
     }
     pub async fn subscribe(&mut self, stream: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
-        let subscribe_msg = format!(r#"{{"method": "SUBSCRIBE", "params": ["{}"], "id": 1}}"#, stream);
-        self.ws_stream.send(Message::Text(subscribe_msg)).await?;
+        self.ws_stream.send(Message::Text(BinanceWebSocket::create_payload(
+                    Command::Subscribe,
+                    vec![String::from(stream)])
+                ?)
+            ).await?;
         Ok(())
     }
 
     pub async fn unsubscribe(&mut self, stream: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
-        let unsubscribe_msg = format!(r#"{{"method": "UNSUBSCRIBE", "params": ["{}"], "id": 1}}"#, stream);
-        self.ws_stream.send(Message::Text(unsubscribe_msg)).await?;
+        self.ws_stream.send(Message::Text(BinanceWebSocket::create_payload(
+                    Command::Unsubscribe,
+                    vec![String::from(stream)])
+                ?)
+            ).await?;
         Ok(())
     }
 
@@ -58,6 +76,15 @@ impl BinanceWebSocket {
         }
 
         Ok(())
+    }
+
+    fn create_payload(command: Command, message: Vec<String>) -> Result<String, serde_json::Error> {
+        let payload = Subscribe { 
+            method: command, 
+            params: message, 
+            id: 1 
+        };
+        serde_json::to_string(&payload)
     }
 }
 
