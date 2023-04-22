@@ -1,6 +1,7 @@
 use reqwest::Client;
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
+use serde::Serialize;
 
 pub struct BinanceRest {
     client: Client,
@@ -8,6 +9,8 @@ pub struct BinanceRest {
     secret_key: String,
     base_url: String,
 }
+
+
 
 impl BinanceRest {
 
@@ -37,5 +40,15 @@ impl BinanceRest {
         let signature = hex::encode(result.into_bytes());
 
         signature
+    }
+
+    async fn send_post_request<T: Serialize + ?Sized >(&self, json_body: &T) -> Result<NewOrderResponse, reqwest::Error> {
+        let resp_json = self.client.post(&self.base_url)
+            .header("X-MBX-APIKEY", &self.api_key)
+            .json(json_body)
+            .send()
+            .await;
+
+        response.json::<NewOrderResponse>().await
     }
 }
