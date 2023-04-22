@@ -1,1 +1,3 @@
-pub mod websocket;
+mod websocket;
+
+pub use websocket::BinanceWebSocket;
