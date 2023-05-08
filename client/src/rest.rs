@@ -1,4 +1,4 @@
-use reqwest::Client;
+use reqwest::{ Client, Response };
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
 use serde::Serialize;
@@ -10,8 +10,6 @@ pub struct BinanceRest {
     base_url: String,
 }
 
-
-
 impl BinanceRest {
 
     pub fn new(api_key: String, secret_key: String) -> Self {
@@ -19,7 +17,7 @@ impl BinanceRest {
             client: Client::new(), 
             api_key, 
             secret_key, 
-            base_url: String::from("https://api.binance.com/api") 
+            base_url: String::from("https://api.binance.com/") 
         }
     }
 
@@ -42,13 +40,24 @@ impl BinanceRest {
         signature
     }
 
-    async fn send_post_request<T: Serialize + ?Sized >(&self, json_body: &T) -> Result<NewOrderResponse, reqwest::Error> {
-        let resp_json = self.client.post(&self.base_url)
+    async fn post<T: Serialize + ?Sized >(&self, json_body: &T, endpoint: &str) -> Result<Response, reqwest::Error> {
+        let url = format!("{}/{}", &self.base_url, endpoint);
+        let response = self.client.post(&url)
             .header("X-MBX-APIKEY", &self.api_key)
             .json(json_body)
             .send()
             .await;
 
-        response.json::<NewOrderResponse>().await
+        response
+    }
+
+    async fn get(&self, endpoint: &str) -> Result<Response, reqwest::Error> {
+        let url = format!("{}/{}",  &self.base_url, endpoint);
+        let response  = self.client.get(&url)
+            .header("X-MBX-APIKEY", &self.api_key)
+            .send()
+            .await;
+
+        response
     }
 }
