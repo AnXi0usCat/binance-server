@@ -40,8 +40,8 @@ impl BinanceRest {
         signature
     }
 
-    async fn post<T: Serialize + ?Sized >(&self, json_body: &T, endpoint: &str) -> Result<Response, reqwest::Error> {
-        let url = format!("{}/{}", &self.base_url, endpoint);
+    async fn post<T: Serialize + ?Sized >(&self, json_body: &T, query: &str) -> Result<Response, reqwest::Error> {
+        let url = format!("{}/{}", &self.base_url, query);
         let response = self.client.post(&url)
             .header("X-MBX-APIKEY", &self.api_key)
             .json(json_body)
@@ -51,9 +51,19 @@ impl BinanceRest {
         response
     }
 
-    async fn get(&self, endpoint: &str) -> Result<Response, reqwest::Error> {
-        let url = format!("{}/{}",  &self.base_url, endpoint);
+    async fn get(&self, query: &str) -> Result<Response, reqwest::Error> {
+        let url = format!("{}/{}",  &self.base_url, query);
         let response  = self.client.get(&url)
+            .header("X-MBX-APIKEY", &self.api_key)
+            .send()
+            .await;
+
+        response
+    }
+
+    async fn delete(&self, query: &str) -> Result<Response, reqwest::Error> {
+        let url = format!("{}/{}",  &self.base_url, query);
+        let response = self.client.delete(&url)
             .header("X-MBX-APIKEY", &self.api_key)
             .send()
             .await;
